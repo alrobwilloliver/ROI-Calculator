@@ -35,7 +35,7 @@ async function scrapeRightMove(url) {
 
 		for (let i = 0; i < titles.length; i++) {
 			// console.log(titles[i], addresses[i], descriptions[i], prices[i]);
-			data.push(titles[i], descriptions[i], addresses[i], prices[i], urls[i]);
+			data.push(titles[i], descriptions[i], addresses[i], prices[i]);
 		}
 		
 		console.log(data);
@@ -45,4 +45,10 @@ async function scrapeRightMove(url) {
 
 }
 
+
+
 scrapeRightMove('https://www.rightmove.co.uk/property-for-sale/find.html?locationIdentifier=REGION%5E984&maxPrice=100000&radius=3.0&sortType=1&propertyTypes=detached%2Csemi-detached%2Cterraced&primaryDisplayPropertyType=houses&includeSSTC=false&mustHave=&dontShow=&furnishTypes=&keywords=');
+
+'https://www.openrent.co.uk/properties-to-rent/keel-gardens-bedlington?term=Keel%20Gardens,%20Bedlington&area=2&sortType=0&prices_min=100&prices_max=600&bedrooms_min=3&bedrooms_max=3&bathrooms_max=1';
+
+
