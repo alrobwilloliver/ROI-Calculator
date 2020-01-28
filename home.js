@@ -39,34 +39,31 @@ const puppeteer = require('puppeteer');
 			clicker.click();
 
 			await page.waitForSelector('.property-header-price')
-			// const price = await page.$eval('p.property-header-price', (p) => {
-			// 	return p.innerText;
-			// });
-			// const address = await page.$eval('address.pad-0.fs-16.grid-25', (address) => {
-			// 	return address.innerText;
-			// });
-			// const title = await page.$eval('h1.fs-22', (h1) => {
-			// 	return h1.innerText;
-			// })
-			const images = await page.$eval('.gallery-thumbs-list', (imageList) => {
-				return imageList
+			const price = await page.$eval('p.property-header-price', (p) => {
+				return p.innerText;
+			});
+			const address = await page.$eval('address.pad-0.fs-16.grid-25', (address) => {
+				return address.innerText;
+			});
+			const title = await page.$eval('h1.fs-22', (h1) => {
+				return h1.innerText;
 			})
-			console.log(typeof images)
+			const images = await page.$('.gallery-thumbs-list');
+			// console.log(typeof images)
 			// const imagesList = []
-			// for (let i = 0; i < images.length; i++) {
-			// 	await images[i].$eval('meta', (meta) => {
-			// 		return meta.getAttribute('content')
-			// 	});
-			// }
-		
-			console.log(images);
+			const imagesList = await images.$$eval('li > meta', nodes => nodes.map(n => n.getAttribute('content')));
+			
+			const branch = await page.$eval('#aboutBranchLink strong', (name) => { return name.innerText});
+			const branchTele = await page.$eval('.fs-19 > strong', (tele) => { return tele.innerText})
+			const url = await page.url();
+			console.log(title, price, address, imagesList, branch, branchTele, url);
 		}
+
+		browser.close();
+		console.log('browser closed');
 
 	} catch (e) {
 		console.log('our error', e);
 	}
-
-	page.close()
-	browser.close();
 
 })();
