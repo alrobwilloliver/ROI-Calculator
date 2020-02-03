@@ -1,27 +1,42 @@
 const puppeteer = require('puppeteer');
 
-const RIGHTMOVE_URL = (rightmove) => `https://www.rightmove.co.uk/property-for-sale${rightmove}`
+const RIGHTMOVE_URL = (rightmove) => `https://www.rightmove.co.uk/property-for-sale${rightmove}`;
 
 const self = {
 
 	browser: null,
-	page: null,
+	page: {
+		rightmove: null,
+		openrent: null
+	},
 
 	initialize: async (rightmove) => {
 		
 		self.browser = await puppeteer.launch(
-			{ headless: true }
+			{ headless: false }
 		);
-		self.page = await self.browser.newPage();
+		self.page.rightmove = await self.browser.newPage();
 		
 		/* go to the page */
-		await self.page.goto(RIGHTMOVE_URL(rightmove), { waitUntil: 'networkidle0' });
+		await self.page.rightmove.goto(RIGHTMOVE_URL(rightmove), { waitUntil: 'networkidle0' });
 		// self.page.waitForSelector('.propertyCard');
 
 	},
 
-	scrapeRightMove: async (nr) => {
+	rightMovePaginations: async () => {
 		
+		const pages = await self.page.rightmove.$eval('.searchHeader-resultCount', pages => pages.innerText);
+		console.log(pages);
+
+		return pages;
+		
+	},
+
+	scrapeRightMove: async () => {
+		
+		let nr = await self.rightMovePaginations();
+		nr = parseInt(nr);
+
 		let results = [];
 
 		do {
@@ -31,11 +46,11 @@ const self = {
 			results = [ ...results, ...newResults ];
 
 			if (results.length < nr) {
-				let nextPageButton = await self.page.$('.pagination-direction--next');
+				let nextPageButton = await self.page.rightmove.$('.pagination-direction--next');
 
 				if (nextPageButton) {
 					await nextPageButton.click()
-					await self.page.waitForSelector('.propertyCard-address');
+					await self.page.rightmove.waitForSelector('.propertyCard-address');
 				} else {
 					break;
 				}
@@ -53,7 +68,7 @@ const self = {
 
 	parseRightMove: async () => {
 		console.log('Hello, World!');
-		let properties = await self.page.$$('.propertyCard');
+		let properties = await self.page.rightmove.$$('.propertyCard');
 		console.log(properties.length);
 		let results = [];
 
@@ -86,6 +101,23 @@ const self = {
 		}
 	
 		return results;
+	},
+
+	searchOpenRent: async (rightMoveResults) => {
+
+		let addresses = [];
+		
+		rightMoveResults.forEach((e) => {
+			// const address = e.address
+
+			addresses.push(e.address);
+		})
+
+		console.log(addresses);
+	},
+
+	closeBrowser: async () => {
+		self.browser.close();
 	}
  
 }
