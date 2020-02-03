@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 
 const RIGHTMOVE_URL = (rightmove) => `https://www.rightmove.co.uk/property-for-sale${rightmove}`;
+const OPENRENT_URL = 'https://www.openrent.co.uk/';
 
 const self = {
 
@@ -34,7 +35,8 @@ const self = {
 
 	scrapeRightMove: async () => {
 		
-		let nr = await self.rightMovePaginations();
+		// let nr = await self.rightMovePaginations();
+		let nr = '10';
 		nr = parseInt(nr);
 
 		let results = [];
@@ -67,9 +69,7 @@ const self = {
 	},
 
 	parseRightMove: async () => {
-		console.log('Hello, World!');
 		let properties = await self.page.rightmove.$$('.propertyCard');
-		console.log(properties.length);
 		let results = [];
 
 		for (let property of properties) {
@@ -106,14 +106,25 @@ const self = {
 	searchOpenRent: async (rightMoveResults) => {
 
 		let addresses = [];
-		
-		rightMoveResults.forEach((e) => {
-			// const address = e.address
 
-			addresses.push(e.address);
-		})
+		self.page.openrent = await self.browser.pages();
+
+		for (let i = 0; i < rightMoveResults.length; i++) {
+			
+			addresses.push(rightMoveResults[i].address);
+
+			await self.page.openrent[0].goto(OPENRENT_URL, { waitUntil: 'networkidle0'});
+
+			await self.page.openrent[0].focus('#searchBox');
+			await self.page.openrent[0].type(`${address[i]}`);
+			await self.page.openrent[0].$eval('#embeddedSearchBtn', btn => btn.click );
+			await self.page.openrent[0].waitForNavigation();
+			
+		}
 
 		console.log(addresses);
+		
+
 	},
 
 	closeBrowser: async () => {
