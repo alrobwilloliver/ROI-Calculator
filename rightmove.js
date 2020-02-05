@@ -5,25 +5,6 @@ const propertySchema = require('./models/propertiesSchema');
 const RIGHTMOVE_URL = (rightmove) => `https://www.rightmove.co.uk/property-for-sale${rightmove}`;
 const OPENRENT_URL = 'https://www.openrent.co.uk/';
 
-const addToDb = property => {
-	const { propertyTitle, propertyAddress, propertyUrl, propertyImage, propertyPrice, propertyDesc } = property;
-	return propertySchema.findOne({propertyAddress, propertyPrice, propertyUrl}).then(doc => {
-		if (doc) return 'item is already in the database';
-		if (!doc) {
-			const newProperty = new propertySchema();
-			newProperty.propertyTitle = propertyTitle;
-			newProperty.propertyAddress = propertyAddress;
-			newProperty.propertyPrice = propertyPrice;
-			newProperty.propertyImage = propertyImage;
-			newProperty.propertyUrl = propertyUrl; 
-			newProperty.propertyDesc = propertyDesc;
-			newProperty.timeStamp = Date.now();
-			return newProperty.save()
-				.then(() => 'property added to database').catch(() => 'database saving error');
-		}
-	}).catch(() => 'database finding error');
-};
-
 const self = {
 
 	browser: null,
