@@ -1,7 +1,28 @@
 const puppeteer = require('puppeteer');
+const mongoose = require('mongoose');
+const propertySchema = require('./models/propertiesSchema');
 
 const RIGHTMOVE_URL = (rightmove) => `https://www.rightmove.co.uk/property-for-sale${rightmove}`;
 const OPENRENT_URL = 'https://www.openrent.co.uk/';
+
+const addToDb = property => {
+	const { propertyTitle, propertyAddress, propertyUrl, propertyImage, propertyPrice, propertyDesc } = property;
+	return propertySchema.findOne({propertyAddress, propertyPrice, propertyUrl}).then(doc => {
+		if (doc) return 'item is already in the database';
+		if (!doc) {
+			const newProperty = new propertySchema();
+			newProperty.propertyTitle = propertyTitle;
+			newProperty.propertyAddress = propertyAddress;
+			newProperty.propertyPrice = propertyPrice;
+			newProperty.propertyImage = propertyImage;
+			newProperty.propertyUrl = propertyUrl; 
+			newProperty.propertyDesc = propertyDesc;
+			newProperty.timeStamp = Date.now();
+			return newProperty.save()
+				.then(() => 'property added to database').catch(() => 'database saving error');
+		}
+	}).catch(() => 'database finding error');
+};
 
 const self = {
 
@@ -74,13 +95,17 @@ const self = {
 
 		for (let property of properties) {
 
-			let title = await property.$eval('.propertyCard-title', node => node.innerText);
-			let address = await property.$eval('.propertyCard-address', node => node.innerText);
-			let description = await property.$eval('.propertyCard-description', node => node.innerText);
-			let value = await property.$eval('.propertyCard-priceValue', node => node.innerText);
-			let images = await property.$eval('img', node => 
+			let propertyTitle = await property.$eval('.propertyCard-title', node => node.innerText);
+			let propertyAddress = await property.$eval('.propertyCard-address', node => node.innerText);
+			let propertyDesc = await property.$eval('.propertyCard-description', node => node.innerText);
+			let propertyPrice = await property.$eval('.propertyCard-priceValue', node => node.innerText);
+			let propertyImage = await property.$eval('img', node => 
 				node.src ? node.src : node.href 
 			);
+			let propertyUrl = await property.$eval('.propertyCard-moreInfoItem', node => {
+				const href = node.getAttribute('href');
+				return `rightmove.co.uk${href}`;
+			});
 			
 			// console.log(
 			// 	'/* -----------------------------------*/',
@@ -90,13 +115,16 @@ const self = {
 
 			results.push({
 
-				title,
-				address,
-				description,
-				value,
-				images
+				propertyTitle,
+				propertyAddress,
+				propertyDesc,
+				propertyPrice,
+				propertyImage,
+				propertyUrl
 
 			})
+
+			addToDb(results);
 
 		}
 	

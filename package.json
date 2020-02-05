@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "fsevents": "^2.1.2",
+    "mongoose": "^5.8.11",
     "puppeteer": "^2.0.0",
     "underscore": "^1.9.2"
   }

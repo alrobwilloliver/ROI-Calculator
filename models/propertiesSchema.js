@@ -17,7 +17,7 @@ const propertySchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	propertyImg: {
+	propertyImage: {
 		type: String,
 		required: true
 	},
@@ -32,4 +32,4 @@ const propertySchema = new mongoose.Schema({
 	},
 });
 
-modules.exports = mongoose.model('property', propertySchema);
+module.exports = mongoose.model('property', propertySchema);
