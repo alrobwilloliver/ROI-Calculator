@@ -32,4 +32,4 @@ const propertySchema = new mongoose.Schema({
 	},
 });
 
-module.exports = mongoose.model('property', propertySchema);
+module.exports = mongoose.model('Property', propertySchema);

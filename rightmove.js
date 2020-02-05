@@ -3,32 +3,28 @@ const mongoose = require('mongoose');
 const propertySchema = require('./models/propertiesSchema');
 
 const RIGHTMOVE_URL = (rightmove) => `https://www.rightmove.co.uk/property-for-sale${rightmove}`;
-const OPENRENT_URL = 'https://www.openrent.co.uk/';
 
 const self = {
 
 	browser: null,
-	page: {
-		rightmove: null,
-		openrent: null
-	},
+	page: null,
 
 	initialize: async (rightmove) => {
 		
 		self.browser = await puppeteer.launch(
 			{ headless: false }
 		);
-		self.page.rightmove = await self.browser.newPage();
+		self.page = await self.browser.newPage();
 		
 		/* go to the page */
-		await self.page.rightmove.goto(RIGHTMOVE_URL(rightmove), { waitUntil: 'networkidle0' });
+		await self.page.goto(RIGHTMOVE_URL(rightmove), { waitUntil: 'networkidle0' });
 		// self.page.waitForSelector('.propertyCard');
 
 	},
 
 	rightMovePaginations: async () => {
 		
-		const pages = await self.page.rightmove.$eval('.searchHeader-resultCount', pages => pages.innerText);
+		const pages = await self.page.$eval('.searchHeader-resultCount', pages => pages.innerText);
 		console.log(pages);
 
 		return pages;
@@ -49,11 +45,11 @@ const self = {
 			results = [ ...results, ...newResults ];
 
 			if (results.length < nr) {
-				let nextPageButton = await self.page.rightmove.$('.pagination-direction--next');
+				let nextPageButton = await self.page.$('.pagination-direction--next');
 
 				if (nextPageButton) {
 					await nextPageButton.click()
-					await self.page.rightmove.waitForSelector('.propertyCard-address');
+					await self.page.waitForSelector('.propertyCard-address');
 				} else {
 					break;
 				}
@@ -62,7 +58,7 @@ const self = {
 			// below commented out not required here [can delete]
 			// await nextPageButton.click();
 			// await self.page.waitForNavigation({ waitUntil: 'networkidle0' });
-			// nextPageButton = await self.page.rightmove.$('.pagination-direction--next');
+			// nextPageButton = await self.page.$('.pagination-direction--next');
 		} while(results.length < nr);
 		
 		return results.slice(0, nr);
@@ -70,7 +66,7 @@ const self = {
 	},
 
 	parseRightMove: async () => {
-		let properties = await self.page.rightmove.$$('.propertyCard');
+		let properties = await self.page.$$('.propertyCard');
 		let results = [];
 
 		for (let property of properties) {
@@ -85,7 +81,7 @@ const self = {
 			let propertyUrl = await property.$eval('.propertyCard-moreInfoItem', node => {
 				const href = node.getAttribute('href');
 				return `rightmove.co.uk${href}`;
-			}).catch(() => {return propertyUrl = null})
+			}).catch(() => {return null})
 			
 			// console.log(
 			// 	'/* -----------------------------------*/',
@@ -109,30 +105,6 @@ const self = {
 		}
 	
 		return results;
-	},
-
-	searchOpenRent: async (rightMoveResults) => {
-
-		let addresses = [];
-
-		self.page.openrent = await self.browser.pages();
-
-		for (let i = 0; i < rightMoveResults.length; i++) {
-			
-			addresses.push(rightMoveResults[i].address);
-
-			// await self.page.openrent[0].goto(OPENRENT_URL, { waitUntil: 'networkidle0'});
-
-			// await self.page.openrent[0].focus('#searchBox');
-			// await self.page.openrent[0].type(`${address[i]}`);
-			// await self.page.openrent[0].$eval('#embeddedSearchBtn', btn => btn.click );
-			// await self.page.openrent[0].waitForNavigation();
-			
-		}
-
-		console.log(addresses);
-		
-
 	},
 
 	closeBrowser: async () => {

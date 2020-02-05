@@ -4,7 +4,7 @@
 	const mongoose = require('mongoose');
 	const propertySchema = require('./models/propertiesSchema');
 
-	mongoose.connect('mongodb://localhost:27017/rightmove-scraper', { useNewUrlParser: true, useUnifiedTopology: true }, () => {
+	mongoose.connect('mongodb://localhost:27017/rightmovescraper', { useNewUrlParser: true, useUnifiedTopology: true }, () => {
 		console.log('connected to database')
 	});
 
