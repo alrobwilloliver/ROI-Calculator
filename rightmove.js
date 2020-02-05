@@ -56,8 +56,7 @@ const self = {
 
 	scrapeRightMove: async () => {
 		
-		// let nr = await self.rightMovePaginations();
-		let nr = '10';
+		let nr = await self.rightMovePaginations();
 		nr = parseInt(nr);
 
 		let results = [];
@@ -79,10 +78,10 @@ const self = {
 				}
 			}
 
-
+			// below commented out not required here [can delete]
 			// await nextPageButton.click();
 			// await self.page.waitForNavigation({ waitUntil: 'networkidle0' });
-			// nextPageButton = await self.page.$('.pagination-direction--next');
+			// nextPageButton = await self.page.rightmove.$('.pagination-direction--next');
 		} while(results.length < nr);
 		
 		return results.slice(0, nr);
@@ -105,11 +104,11 @@ const self = {
 			let propertyUrl = await property.$eval('.propertyCard-moreInfoItem', node => {
 				const href = node.getAttribute('href');
 				return `rightmove.co.uk${href}`;
-			});
+			}).catch(() => {return propertyUrl = null})
 			
 			// console.log(
 			// 	'/* -----------------------------------*/',
-			// 	title, address, description, value, images,
+			// 	propertyTitle, propertyAddress, propertyDesc, propertyPrice, propertyImage, propertyUrl
 			// 	'/* -----------------------------------*/'
 			// );
 
@@ -124,7 +123,7 @@ const self = {
 
 			})
 
-			addToDb(results);
+			// addToDb(results);
 
 		}
 	
@@ -141,12 +140,12 @@ const self = {
 			
 			addresses.push(rightMoveResults[i].address);
 
-			await self.page.openrent[0].goto(OPENRENT_URL, { waitUntil: 'networkidle0'});
+			// await self.page.openrent[0].goto(OPENRENT_URL, { waitUntil: 'networkidle0'});
 
-			await self.page.openrent[0].focus('#searchBox');
-			await self.page.openrent[0].type(`${address[i]}`);
-			await self.page.openrent[0].$eval('#embeddedSearchBtn', btn => btn.click );
-			await self.page.openrent[0].waitForNavigation();
+			// await self.page.openrent[0].focus('#searchBox');
+			// await self.page.openrent[0].type(`${address[i]}`);
+			// await self.page.openrent[0].$eval('#embeddedSearchBtn', btn => btn.click );
+			// await self.page.openrent[0].waitForNavigation();
 			
 		}
 
