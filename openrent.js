@@ -21,30 +21,40 @@ const self = {
 
 	readDb: async () => {
 
-		await MongoClient.connect('mongodb://localhost:27017/rightmovescraper', { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
-				console.log('connected to database')
-				assert.equal(null, err);
-				client.close();
+		MongoClient.connect('mongodb://localhost:27017/rightmovescraper', { useNewUrlParser: true, useUnifiedTopology: true }, function(err, db) {
+				if (err) { console.log(err) }
 
-	  			const db = client.db("rightmovescraper");
-				
-	  			var cursor = db.collection('properties').find({});
-
-	  			function iterateFunc(doc) {
-				   return JSON.stringify(doc, null, 4);
-				}
-
-				const data = cursor.forEach(iterateFunc);
-				console.log(data);
-				client.close();
+				db.collection('properties', function (err, collection) {
+        
+			        collection.find().toArray(function(err, items) {
+			            if(err) throw err;    
+			            console.log(items);           
+			        });
+			    });
 		});
+        
+    },
 
-	},
+				// console.log('connected to database')
+				// assert.equal(null, err);
+
+	  	// 		const db = client.db("rightmovescraper");
+
+		// var cursor = db.collection('properties').find({});
+
+		// 		let data = []
+	 //  			function iterateFunc(doc) {
+		// 		   let prop = JSON.stringify(doc, null, 4);
+		// 		   data.push(prop);
+		// 		   console.log(data);
+		// 		}
+
+		// cursor.forEach(iterateFunc);
 
 	searchOpenRent: async () => {
 	
-		const data = self.readDb();
-		
+		const data = await self.readDb();
+		console.log(data);
 
 		// let addresses = [];
 
