@@ -9,6 +9,7 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+const MongoClient = require('mongodb').MongoClient;
 
 const initializePassport = require('./passport-config')
 initializePassport(
@@ -32,7 +33,17 @@ app.use(passport.session())
 app.use(methodOverride('_method'))
 
 app.get('/', checkAuthenticated, (req, res) => {
-    res.render('index.ejs', { name: req.user.name });
+
+    const data = MongoClient.connect('mongodb://localhost:27017/', { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+        if (err) { return err }
+        var dbo = client.db('rightmovescraper')
+        dbo.collection('properties').find({}).toArray(function(err, result) {
+            if (err) throw err;
+            client.close();
+            res.render('index.ejs', { data: result });
+        })
+    });
+
 })
 
 app.get('/login', checkNotAuthenticated, (req, res) => {

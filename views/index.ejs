@@ -1,4 +1,13 @@
-<h1>hi <%= name %> </h1>
+<h1>hi  </h1>
+
+<% data.forEach((element) => { %> 
+    <div class="card">
+        <p>
+            <%= element.propertyTitle %> 
+            <%= element.propertyAddress %>
+            <%= element.propertyPrice %>
+        </p>
+    </div>
+<% }) %> 
 <form action="/logout?_method=DELETE" method="POST">
-    <button type="submit">Log Out</button>
 </form>
